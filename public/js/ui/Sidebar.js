@@ -41,6 +41,7 @@ class Sidebar {
    * выходу устанавливает App.setState( 'init' )
    * */
   static initAuthLinks() {
-
+    const loginBtn = this.element.querySelector('.menu-item_login');
+    loginBtn.addEventListener('click', () => App.getModal('login').open());
   }
 }

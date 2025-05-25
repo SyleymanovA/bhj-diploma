@@ -45,11 +45,13 @@ class Modal {
    * */
   open() {
     this.element.style.display = 'block';
+    this.element.classList.add ('fade', 'in');
   }
   /**
    * Закрывает окно: удаляет CSS-свойство display
    * */
   close() {
-    this.element.style.display = '';
+    this.element.style.display = 'none';
+    this.element.classList.remove ('fade', 'in');
   }
 }  
