@@ -29,12 +29,7 @@ class LoginForm extends AsyncForm {
       } else {
         // Обработка ошибки авторизации
         console.error('Ошибка авторизации:', response ? response.error : 'Неизвестная ошибка');
-        
-        // Можно добавить отображение ошибки пользователю
-        const errorElement = this.element.querySelector('.error-message') || document.createElement('div');
-        errorElement.className = 'error-message';
-        errorElement.textContent = response ? response.error : 'Ошибка сервера';
-        this.element.appendChild(errorElement);
+
       }
     });
   }
