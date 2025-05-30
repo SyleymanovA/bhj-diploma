@@ -1,57 +1,37 @@
-const { response } = require("express");
-
-/**
- * Класс CreateTransactionForm управляет формой
- * создания новой транзакции
- * */
 class CreateTransactionForm extends AsyncForm {
-  /**
-   * Вызывает родительский конструктор и
-   * метод renderAccountsList
-   * */
   constructor(element) {
     super(element);
-    this.renderAccountsList ();
+    this.renderAccountsList();
   }
 
-  /**
-   * Получает список счетов с помощью Account.list
-   * Обновляет в форме всплывающего окна выпадающий список
-   * */
-  renderAccountsList() {
-    const accountSelect = this.element.querySelector ('.accounts-select');
-    if (accountSelect) {
-      accountSelect.list ({}, (err, response) => {
-        if (response && response.success) {
-          accountSelect.innerHTML = '';
-          response.data.forEach (account => {
-            const option = document.createElement ('option');
-            option.value = account.id;
-            option.textContent = account.name;
-            accountSelect.appendChild (option);
-          });
-        }
-      });
+  async renderAccountsList() {
+    const select = this.element.querySelector('.accounts-select');
+    if (!select) return;
+
+    try {
+      const response = await Account.list();
+      if (response && response.success) {
+        select.innerHTML = response.data.map(account => 
+          `<option value="${account.id}">${account.name}</option>`
+        ).join('');
+      }
+    } catch (err) {
+      console.error('Error loading accounts:', err);
     }
   }
 
-  /**
-   * Создаёт новую транзакцию (доход или расход)
-   * с помощью Transaction.create. По успешному результату
-   * вызывает App.update(), сбрасывает форму и закрывает окно,
-   * в котором находится форма
-   * */
-  onSubmit(data) {
-    Transaction.create (data, (err, response) => {
+  async onSubmit(data) {
+    try {
+      const response = await Transaction.create(data);
       if (response && response.success) {
-        this.element.reset ();
-        const modalName = this.element.closest ('.modal').id === 'modal-new-income' ? 'newIncome' : 'newExpense';
-        App.getModal (modalName).close ();
-        App.update ();
-        this.renderAccountsList ();
-      } else {
-        alert (response.error || 'ошибка создания транзакции');
+        this.element.reset();
+        App.getModal(this.element.closest('.modal').id.includes('income') 
+          ? 'newIncome' 
+          : 'newExpense').close();
+        App.update();
       }
-    });
+    } catch (err) {
+      console.error('Transaction error:', err);
+    }
   }
 }

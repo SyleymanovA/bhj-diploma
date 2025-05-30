@@ -1,47 +1,46 @@
-/**
- * Класс Sidebar отвечает за работу боковой колонки:
- * кнопки скрытия/показа колонки в мобильной версии сайта
- * и за кнопки меню
- * */
 class Sidebar {
-  /**
-   * Запускает initAuthLinks и initToggleButton
-   * */
-  static init() {
-    this.initAuthLinks();
+  constructor(element) {
+    if (!element) throw new Error('Element not provided');
+    this.element = element;
     this.initToggleButton();
+    this.initAuthLinks();
   }
 
-  /**
-   * Отвечает за скрытие/показа боковой колонки:
-   * переключает два класса для body: sidebar-open и sidebar-collapse
-   * при нажатии на кнопку .sidebar-toggle
-   * */
-  static initToggleButton() {
-    const toggleButton = document.querySelector ('.sidebar-toggle.visible-xs');
+  initToggleButton() {
+    const toggleButton = this.element.querySelector('.sidebar-toggle');
     if (toggleButton) {
-      toggleButton.addEventListener ('click', (event) => {
-        event.preventDefault ();
-        const body = document.body;
-        const isCollapsed = body.classList.contains ('sidebar-collapse');
-        if (isCollapsed) {
-          body.classList.remove('sidebar-collapse', 'sidebar-open');
-        } else {
-          body.classList.add('sidebar-collapse', 'sidebar-open');
-        }
+      toggleButton.addEventListener('click', e => {
+        e.preventDefault();
+        document.body.classList.toggle('sidebar-collapse');
+        document.body.classList.toggle('sidebar-open');
       });
     }
   }
 
-  /**
-   * При нажатии на кнопку входа, показывает окно входа
-   * (через найденное в App.getModal)
-   * При нажатии на кнопку регастрации показывает окно регистрации
-   * При нажатии на кнопку выхода вызывает User.logout и по успешному
-   * выходу устанавливает App.setState( 'init' )
-   * */
-  static initAuthLinks() {
+  initAuthLinks() {
     const loginBtn = this.element.querySelector('.menu-item_login');
-    loginBtn.addEventListener('click', () => App.getModal('login').open());
+    const registerBtn = this.element.querySelector('.menu-item_register');
+    const logoutBtn = this.element.querySelector('.menu-item_logout');
+
+   if (loginBtn) {
+      loginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        App.getModal('login').open();
+      });
+    }
+
+    if (registerBtn) {
+      registerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        App.getModal('register').open();
+      });
+    } 
+    
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        await User.logout();
+        App.setState('init');
+      });
+    }
   }
 }
