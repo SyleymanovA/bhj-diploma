@@ -2,26 +2,41 @@ function createRequest(options = {}) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    let url = options.url;
     
-    // Формируем URL с параметрами для GET-запросов
-    if (options.method === 'GET' && options.data) {
+    const method = options.method || 'GET';
+    let url = options.url;
+
+    if (method === 'GET' && options.data) {
       const params = new URLSearchParams();
-      for (const key in options.data) {
+      for (let key in options.data) {
         params.append(key, options.data[key]);
       }
-      url += `?${params.toString()}`;
+      url += '?' + params.toString();
     }
 
-    xhr.open(options.method, url);
-    xhr.onload = () => resolve(xhr.response);
-    xhr.onerror = () => reject(new Error('Network Error'));
+    xhr.open(method, url);
+    xhr.withCredentials = true;
 
-    if (options.method === 'GET') {
-      xhr.send();
+    xhr.addEventListener('load', () => {
+      if (xhr.status < 400) {
+        resolve(xhr.response);
+      } else {
+        reject(xhr.response);
+      }
+    });
+
+    xhr.addEventListener('error', () => {
+      reject(new Error('Network Error'));
+    });
+
+    if (method !== 'GET' && options.data) {
+      const formData = new FormData();
+      for (let key in options.data) {
+        formData.append(key, options.data[key]);
+      }
+      xhr.send(formData);
     } else {
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.send(JSON.stringify(options.data));
+      xhr.send();
     }
   });
 }

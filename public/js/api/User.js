@@ -16,10 +16,7 @@ class User {
   }
 
   static async fetch() {
-    return createRequest({
-      url: `${this.URL}/current`,
-      method: 'GET'
-    });
+    return JSON.parse(localStorage.getItem('user'));
   }
 
   static async login(data) {

@@ -18,28 +18,32 @@ class Sidebar {
   }
 
   initAuthLinks() {
-    const loginBtn = this.element.querySelector('.menu-item_login');
-    const registerBtn = this.element.querySelector('.menu-item_register');
-    const logoutBtn = this.element.querySelector('.menu-item_logout');
+    const loginButton = this.element.querySelector('.login-btn');
+    const registerButton = this.element.querySelector('.register-btn');
+    const logoutButton = this.element.querySelector('.logout-btn');
 
-   if (loginBtn) {
-      loginBtn.addEventListener('click', (e) => {
+    if (loginButton) {
+      loginButton.addEventListener('click', (e) => {
         e.preventDefault();
         App.getModal('login').open();
       });
     }
 
-    if (registerBtn) {
-      registerBtn.addEventListener('click', (e) => {
+    if (registerButton) {
+      registerButton.addEventListener('click', (e) => {
         e.preventDefault();
         App.getModal('register').open();
       });
-    } 
-    
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', async () => {
-        await User.logout();
-        App.setState('init');
+    }
+
+    if (logoutButton) {
+      logoutButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        User.logout((err, response) => {
+          if (response && response.success) {
+            App.setState('init');
+          }
+        });
       });
     }
   }

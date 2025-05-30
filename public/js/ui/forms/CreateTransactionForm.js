@@ -5,19 +5,19 @@ class CreateTransactionForm extends AsyncForm {
   }
 
   async renderAccountsList() {
-    const select = this.element.querySelector('.accounts-select');
-    if (!select) return;
+  const accountSelect = this.element.querySelector('.accounts-select');
+  accountSelect.innerHTML = '';
 
-    try {
-      const response = await Account.list();
-      if (response && response.success) {
-        select.innerHTML = response.data.map(account => 
-          `<option value="${account.id}">${account.name}</option>`
-        ).join('');
-      }
-    } catch (err) {
-      console.error('Error loading accounts:', err);
+  Account.list({}, (err, response) => {
+    if (err) {
+      console.error(err);
+      return;
     }
+
+    accountSelect.innerHTML = response.data.reduce((html, account) => {
+      return html + `<option value="${account.id}">${account.name}</option>`;
+    }, '');
+  });
   }
 
   async onSubmit(data) {
