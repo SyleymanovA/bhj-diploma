@@ -1,27 +1,45 @@
 class Entity {
-  static url = '';
-
-  static list(data, callback = (f) => f) {
+  /**
+   * Запрашивает с сервера список данных.
+   * Это могут быть счета или доходы/расходы
+   * (в зависимости от того, что наследуется от Entity)
+   * */
+  static URL = ''
+  static list(data, callback){
     return createRequest({
-      url: this.url,
-      data,
+      url: this.URL,
       method: 'GET',
-    }).then(callback);
+      data: data,
+      callback,
+      });
   }
 
-  static create(data, callback = (f) => f) {
+  /**
+   * Создаёт счёт или доход/расход с помощью запроса
+   * на сервер. (в зависимости от того,
+   * что наследуется от Entity)
+   * */
+  static create(data, callback = f => f) {
     return createRequest({
-      url: this.url,
-      data,
+      url: this.URL,
       method: 'PUT',
-    }).then(callback);
+      responseType: 'json',
+      data: data,
+      callback
+      });
   }
 
-  static remove(data, callback = (f) => f) {
+  /**
+   * Удаляет информацию о счёте или доходе/расходе
+   * (в зависимости от того, что наследуется от Entity)
+   * */
+  static remove(id, callback = f => f ) {
     return createRequest({
-      url: this.url,
-      data,
+      url: this.URL,
       method: 'DELETE',
-    }).then(callback);
+      responseType: 'json',
+      data: {id},
+      callback,
+      });
   }
 }

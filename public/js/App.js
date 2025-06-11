@@ -17,8 +17,7 @@ class App {
     this.initModals();
     this.initWidgets();
 
-    const sidebarElement = document.querySelector('.sidebar'); 
-    new Sidebar(sidebarElement);
+    Sidebar.init();
 
     this.initUser();
   }
@@ -50,8 +49,8 @@ class App {
    * */
   static initModals() {
     this.modals = {
-      login: new Modal(document.querySelector('#modal-login')),
-      register: new Modal(document.querySelector('#modal-register')),
+      register: new Modal(document.querySelector("#modal-register")),
+      login: new Modal(document.querySelector("#modal-login")),
       createAccount: new Modal(document.querySelector("#modal-new-account")),
       newIncome: new Modal(document.querySelector("#modal-new-income")),
       newExpense: new Modal(document.querySelector("#modal-new-expense")),
@@ -144,9 +143,7 @@ class App {
    * Устанавливает состояние приложения
    * Для свойства App.element устанавливает класс
    * app_${state}. Если у приложения есть
-   *
-
-состояние, то старый класс должен быть удалён
+   * состояние, то старый класс должен быть удалён
    * Если состояние state равно 'user-logged', необходимо
    * вызвать метод App.update()
    * Если состояние state равно 'init', необходимо

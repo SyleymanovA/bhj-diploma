@@ -1,54 +1,116 @@
+/**
+ * Класс User управляет авторизацией, выходом и
+ * регистрацией пользователя из приложения
+ * Имеет свойство URL, равное '/user'.
+ * */
 class User {
-  static URL = '/user';
+  static URL = '/user'
 
-  static setCurrent(user) {
+  /**
+   * Устанавливает текущего пользователя в
+   * локальном хранилище.
+   * */
+  static setCurrent (user) {
     localStorage.setItem('user', JSON.stringify(user));
   }
 
-  static unsetCurrent() {
+  /**
+   * Удаляет информацию об авторизованном
+   * пользователе из локального хранилища.
+   * */
+  static unsetCurrent () {
     localStorage.removeItem('user');
   }
 
-  static current() {
-    const userJson = localStorage.getItem('user');
-    if (!userJson) return null;
-    return JSON.parse(userJson);
+  /**
+   * Возвращает текущего авторизованного пользователя
+   * из локального хранилища
+   * */
+  static current () {
+      return JSON.parse(localStorage.getItem('user'));
   }
 
-  static async fetch() {
-    return JSON.parse(localStorage.getItem('user'));
+  /**
+   * Получает информацию о текущем
+   * авторизованном пользователе.
+   * */
+  static fetch (callback) {
+    createRequest({
+      method: 'GET',
+      url: this.URL + '/current',
+      callback: (err, response) => {
+        if (response && response.user) {
+          this.setCurrent(response.user);
+        } else {
+          this.unsetCurrent();
+        }
+        callback(err, response);
+      }
+    });
   }
 
-  static async login(data) {
-    const response = await createRequest({
-      url: `${this.URL}/login`,
+  /**
+   * Производит попытку авторизации.
+   * После успешной авторизации необходимо
+   * сохранить пользователя через метод
+   * User.setCurrent.
+   * */
+  static login (data, callback) {
+    createRequest({
+      url: this.URL + '/login',
       method: 'POST',
-      data
+      responseType: 'json',
+      data,
+      callback: (err, response) => {
+        if (response && response.user) {
+          this.setCurrent(response.user);
+        }
+        callback(err, response);
+      }
     });
-    if (response && response.user) {
-      this.setCurrent(response.user);
-    }
-    return response;
   }
 
-  static async register(data) {
-    const response = await createRequest({
-      url: `${this.URL}/register`,
+  /**
+   * Производит попытку регистрации пользователя.
+   * После успешной авторизации необходимо
+   * сохранить пользователя через метод
+   * User.setCurrent.
+   * */
+  static register (data, callback) {
+    if (!data?.email || !data?.password) {
+      return callback(new Error('Не заполнены обязательные поля'));
+    }
+
+    createRequest({
+      url: this.URL + '/register', // Важно!
       method: 'POST',
-      data
+      responseType: 'json',
+      data,
+      callback: (err, response) => {
+        console.log('Register response:', response);
+        if (response?.user) {
+          this.setCurrent(response.user);
+        }
+        callback(err, response);
+      }
     });
-    if (response && response.user) {
-      this.setCurrent(response.user);
-    }
-    return response;
   }
 
-  static async logout() {
-    const response = await createRequest({
-      url: `${this.URL}/logout`,
-      method: 'POST'
+  /**
+   * Производит выход из приложения. После успешного
+   * выхода необходимо вызвать метод User.unsetCurrent
+   * */
+  static logout (callback) {
+    createRequest({
+      url: this.URL + '/logout',
+      method: 'POST',
+      responseType: 'json',
+      callback: (err, response) => {
+        if (response && response.success) {
+          User.unsetCurrent();
+        }
+        callback(err, response);
+      }
     });
-    this.unsetCurrent();
-    return response;
   }
 }
